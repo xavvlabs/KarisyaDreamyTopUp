@@ -128,23 +128,26 @@ async function cariAkunRoblox(username) {
   const url = `${ROBLOX_PROXY_URL}/api/roblox/${encodeURIComponent(username)}`;
 
   const response = await fetch(url, {
-    method: "GET",
     headers: {
       Accept: "application/json",
     },
   });
 
-  if (!response.ok) {
-    if (response.status === 404) {
-      return null;
-    }
+  const data = await response.json().catch(() => null);
 
-    throw new Error(`Worker error: ${response.status}`);
+  console.log("URL:", url);
+  console.log("Status:", response.status);
+  console.log("Data:", data);
+
+  if (response.status === 404) {
+    return null;
   }
 
-  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(`Server bermasalah: HTTP ${response.status}`);
+  }
 
-  if (!data.success) {
+  if (!data || data.success !== true) {
     return null;
   }
 
@@ -188,6 +191,8 @@ verifyButton.addEventListener("click", async function () {
         "Username Roblox tidak ditemukan. Coba cek lagi penulisannya.";
 
       robloxStatus.className = "roblox-status error";
+      robloxStatus.style.display = "block";
+      robloxStatus.hidden = false;
 
       return;
     }
