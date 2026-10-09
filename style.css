@@ -840,7 +840,7 @@ section {
 .input-note {
   display: block;
   margin-top: 7px;
-  color: var(--text);
+  color: var(--text-light);
   font-size: 10px;
   line-height: 2;
 }
