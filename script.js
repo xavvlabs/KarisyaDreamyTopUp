@@ -19,9 +19,6 @@ function formatRupiah(angka) {
   }).format(angka);
 }
 
-// ==========================================
-// PROMO JUMAT (zona waktu WIB)
-// ==========================================
 
 function hariIniJumat() {
   // Tes manual: tambahkan ?promo=1 di URL
@@ -373,23 +370,25 @@ Diskon Jumat 10%: -${formatRupiah(hargaAsli - harga)}
 Total: ${formatRupiah(harga)}`
         : `Total: ${formatRupiah(harga)}`;
 
-    const pesan = `*PESANAN BARU — KARISYA DREAMY*
+    const pesan = `*૮₍˶ᵔ ᵕ ᵔ˶₎ა BOBux ORDER MASUKK!! 🎀*
 
-Order ID: ${orderID}
 
-*DETAIL PESANAN*
-━━━━━━━━━━━━━━━━
-Jenis: ${tipe}
-Paket: ${paket}
-Username Roblox: ${username}
-Display Name: ${displayName}
-User ID: ${userId}
+
+*୨୧ KARISYA DREAMY ORDER ୨୧*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+୨୧ Order ID: ${orderID}
+୨୧ Jenis: ${tipe}
+୨୧ Paket: ${paket}
+୨୧ Username Roblox: ${username}
+୨୧ Display Name: ${displayName}
+୨୧ User ID: ${userId}
 ${barisHarga}
-Status Akun: Terverifikasi
-━━━━━━━━━━━━━━━━
+୨୧ Status Akun: Terverifikasi
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Halo Admin Karisya Dreamy, saya ingin memesan Robux sesuai detail di atas.
-Mohon informasi pembayaran selanjutnya. Terima kasih 🙏`;
+hαllooo minsyyy ♡ akuu mauu take bObux inii >< 💗 ditungguu next step-nyaa, minsy! 🛒
+
+₊˚ʚ A Little Shop Born From a Dream ɞ˚₊`;
 
     const linkWhatsApp = `https://wa.me/${nomorWhatsApp}?text=${encodeURIComponent(pesan)}`;
 
