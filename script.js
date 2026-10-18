@@ -374,14 +374,14 @@ const pesan = `*૮₍˶ᵔ ᵕ ᵔ˶₎ა BOBux ORDER MASUKK!! 🎀*
     
 *୨୧ KARISYA DREAMY ORDER ୨୧*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-୨୧ Order ID        : ${orderID}
-୨୧ Jenis           : ${tipe}
-୨୧ Paket           : ${paket}
-୨୧ Username Roblox : ${username}
-୨୧ Display Name    : ${displayName}
-୨୧ User ID         : ${userId}
+୨୧ Order ID            : ${orderID}
+୨୧ Jenis               : ${tipe}
+୨୧ Paket               : ${paket}
+୨୧ Username Roblox     : ${username}
+୨୧ Display Name        : ${displayName}
+୨୧ User ID             : ${userId}
 ${barisHarga}
-୨୧ Status Akun     : Terverifikasi
+୨୧ Status Akun         : Terverifikasi
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 hαllooo minsyyy ♡ akuu mauu take bObux inii >< 💗 ditungguu next step-nyaa, minsy! 🛒
