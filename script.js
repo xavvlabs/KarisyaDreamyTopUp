@@ -370,8 +370,8 @@ Diskon Jumat 10%: -${formatRupiah(hargaAsli - harga)}
 Total: ${formatRupiah(harga)}`
         : `Total: ${formatRupiah(harga)}`;
 
-    const pesan = `*૮₍˶ᵔ ᵕ ᵔ˶₎ა BOBux ORDER MASUKK!! 🎀*
-
+const pesan = `*૮₍˶ᵔ ᵕ ᵔ˶₎ა BOBux ORDER MASUKK!! 🎀*
+    
 *୨୧ KARISYA DREAMY ORDER ୨୧*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ୨୧ Order ID        : ${orderID}
