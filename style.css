@@ -2398,3 +2398,55 @@ footer > span {
   width: 330px;
   height: auto;
 }
+.cat3 {
+  position: absolute;
+  left: 350px;
+  top: 90%;
+  transform: translateY(-50%);
+  z-index: 0;
+  opacity: 0.8;
+}
+
+.cat3 img {
+  width: 330px;
+  height: auto;
+}
+.cat4 {
+  position: absolute;
+  left: 200px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 0;
+  opacity: 0.8;
+}
+
+.cat4 img {
+  width: 500px;
+  height: auto;
+}
+.cat6 {
+  position: absolute;
+  left: 1350px;
+  top: 20%;
+  transform: translateY(-50%);
+  z-index: 0;
+  opacity: 0.8;
+}
+
+.cat6 img {
+  width: 430px;
+  height: auto;
+}
+.cat7 {
+  position: absolute;
+  left: 1350px;
+  top: 80%;
+  transform: translateY(-50%);
+  z-index: 0;
+  opacity: 0.8;
+}
+
+.cat7 img {
+  width: 450px;
+  height: auto;
+}
