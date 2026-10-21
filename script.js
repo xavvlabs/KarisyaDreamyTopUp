@@ -5,7 +5,8 @@
 const nomorWhatsApp = "6285780075159";
 const ROBLOX_PROXY_URL = "https://roblox-api.xavvlabs.workers.dev";
 
-const DISKON_JUMAT = 0.1;
+const HARGA_NORMAL_PROMO = 16000;
+const HARGA_JUMAT_PROMO = 15000;
 
 // ==========================================
 // FORMAT RUPIAH
@@ -16,13 +17,19 @@ function formatRupiah(angka) {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(angka);
 }
 
+// ==========================================
+// PROMO JUMAT WIB
+// ==========================================
 
 function hariIniJumat() {
-  // Tes manual: tambahkan ?promo=1 di URL
-  if (new URLSearchParams(location.search).get("promo") === "1") return true;
+  // Pengujian manual: tambahkan ?promo=1 pada URL.
+  if (new URLSearchParams(window.location.search).get("promo") === "1") {
+    return true;
+  }
 
   const hari = new Intl.DateTimeFormat("en-US", {
     weekday: "short",
@@ -34,11 +41,12 @@ function hariIniJumat() {
 
 const promoAktif = hariIniJumat();
 
-const HARGA_KENA_PROMO = [17000, 34000, 51000]; // paket 100, 200, 300
 function hargaAkhir(hargaAsli) {
-  return promoAktif && HARGA_KENA_PROMO.includes(hargaAsli)
-    ? Math.round(hargaAsli * (1 - DISKON_JUMAT))
-    : hargaAsli;
+  if (promoAktif && Number(hargaAsli) === HARGA_NORMAL_PROMO) {
+    return HARGA_JUMAT_PROMO;
+  }
+
+  return Number(hargaAsli);
 }
 
 // ==========================================
@@ -52,46 +60,79 @@ const barTotal = document.getElementById("barTotal");
 const mobileBar = document.getElementById("mobileBar");
 
 function tampilTotal(teks) {
-  total.textContent = teks;
+  if (total) total.textContent = teks;
   if (barTotal) barTotal.textContent = teks;
 }
 
 // ==========================================
-// TERAPKAN HARGA PROMO KE KARTU & DROPDOWN
+// TERAPKAN PROMO PADA KARTU DAN DROPDOWN
 // ==========================================
 
 function terapkanPromoJumat() {
-  if (!promoAktif) return;
+  if (!paketSelect) return;
 
-  // 1) Dropdown form
-  Array.from(paketSelect.options).forEach(function (opt) {
-    const asli = Number(opt.getAttribute("data-price"));
-    if (!asli) return;
-    const baru = hargaAkhir(asli);
-    if (baru === asli) return; // bukan paket promo
-    opt.setAttribute("data-base-price", asli);
-    opt.setAttribute("data-price", baru);
-    opt.textContent = `${opt.value} — ${formatRupiah(baru)} (diskon 10%)`;
-  });
+  const note = document.getElementById("fridayNote");
 
-  // 2) Kartu paket
+  if (note) {
+    note.hidden = !promoAktif;
+  }
+
+  // Harga kartu paket.
   document.querySelectorAll(".package-card").forEach(function (kartu) {
     const hargaEl = kartu.querySelector(":scope > strong");
     if (!hargaEl) return;
-    const asli = Number(hargaEl.textContent.replace(/[^\d]/g, ""));
-    const baru = hargaAkhir(asli);
-    if (!asli || baru === asli) return; // bukan paket promo
-    kartu.classList.add("is-promo");
-    const badge = document.createElement("div");
-    badge.className = "promo-badge";
-    badge.textContent = "-10%";
-    kartu.appendChild(badge);
-    hargaEl.innerHTML = `<s>${formatRupiah(asli)}</s>${formatRupiah(baru)}`;
+
+    // Simpan harga awal agar tidak terjadi diskon ganda.
+    if (!kartu.dataset.basePrice) {
+      kartu.dataset.basePrice = hargaEl.textContent.replace(/[^\d]/g, "");
+    }
+
+    const hargaAsli = Number(kartu.dataset.basePrice);
+    const hargaBaru = hargaAkhir(hargaAsli);
+
+    // Bersihkan tampilan promo sebelumnya.
+    kartu.classList.remove("is-promo");
+
+    const badgeLama = kartu.querySelector(".promo-badge");
+    if (badgeLama) badgeLama.remove();
+
+    if (promoAktif && hargaBaru !== hargaAsli) {
+      kartu.classList.add("is-promo");
+
+      const badge = document.createElement("div");
+      badge.className = "promo-badge";
+      badge.textContent = "PROMO JUMAT";
+      kartu.appendChild(badge);
+
+      hargaEl.innerHTML =
+        `<s>${formatRupiah(hargaAsli)}</s> ` + `${formatRupiah(hargaBaru)}`;
+    } else {
+      hargaEl.textContent = formatRupiah(hargaAsli);
+    }
   });
 
-  // 3) Info Jumat
-  const note = document.getElementById("fridayNote");
-  if (note) note.hidden = false;
+  // Harga dropdown formulir.
+  Array.from(paketSelect.options).forEach(function (opt) {
+    const hargaAsli = Number(opt.dataset.basePrice || opt.dataset.price);
+
+    if (!hargaAsli) return;
+
+    opt.dataset.basePrice = String(hargaAsli);
+
+    const hargaBaru = hargaAkhir(hargaAsli);
+    opt.dataset.price = String(hargaBaru);
+
+    const namaPaket = opt.value;
+
+    if (promoAktif && hargaBaru !== hargaAsli) {
+      opt.textContent = `${namaPaket} — ${formatRupiah(hargaBaru)} (Promo Jumat)`;
+    } else {
+      opt.textContent = `${namaPaket} — ${formatRupiah(hargaAsli)}`;
+    }
+  });
+
+  // Perbarui total jika halaman dibuka dengan paket terpilih.
+  updateTotal();
 }
 
 // ==========================================
@@ -99,16 +140,21 @@ function terapkanPromoJumat() {
 // ==========================================
 
 function tandaiKartuTerpilih() {
+  if (!paketSelect) return;
+
   const nilai = paketSelect.value;
+
   document.querySelectorAll(".package-card").forEach(function (kartu) {
     const nama = kartu.querySelector("h3").textContent.trim();
-    kartu.classList.toggle("picked", !!nilai && nama === nilai);
+
+    kartu.classList.toggle("picked", Boolean(nilai) && nama === nilai);
   });
 }
 
 function pilihPaket(namaPaket, harga, tipe) {
+  if (!paketSelect) return;
+
   const options = paketSelect.options;
-  let harganya = hargaAkhir(harga);
 
   for (let i = 0; i < options.length; i++) {
     const option = options[i];
@@ -118,42 +164,60 @@ function pilihPaket(namaPaket, harga, tipe) {
       option.getAttribute("data-type") === tipe
     ) {
       paketSelect.selectedIndex = i;
-      harganya = Number(option.getAttribute("data-price"));
       break;
     }
   }
 
-  tampilTotal(formatRupiah(harganya));
-  updateCatatanTotal();
+  updateTotal();
   tandaiKartuTerpilih();
 
-  document.getElementById("order").scrollIntoView({ behavior: "smooth" });
+  const orderSection = document.getElementById("order");
+
+  if (orderSection) {
+    orderSection.scrollIntoView({ behavior: "smooth" });
+  }
 }
 
-// Total ikut berubah kalau paket diganti lewat dropdown
-paketSelect.addEventListener("change", function () {
-  const opt = paketSelect.options[paketSelect.selectedIndex];
-  const harga = opt ? Number(opt.getAttribute("data-price")) : 0;
-  tampilTotal(formatRupiah(harga || 0));
-  updateCatatanTotal();
-  tandaiKartuTerpilih();
-});
-
 // ==========================================
-// UPDATE TOTAL
+// UPDATE TOTAL PEMBAYARAN
 // ==========================================
 
 function updateCatatanTotal() {
-  if (!totalNote) return;
+  if (!totalNote || !paketSelect) return;
+
   const opt = paketSelect.options[paketSelect.selectedIndex];
-  const kenaPromo =
-    promoAktif &&
-    opt &&
-    opt.getAttribute("data-base-price") &&
-    opt.getAttribute("data-base-price") !== opt.getAttribute("data-price");
-  totalNote.textContent = kenaPromo
-    ? "Sudah termasuk diskon Jumat 10%"
-    : "Sesuai paket yang dipilih";
+
+  if (!opt || !opt.value) {
+    totalNote.textContent = "Sesuai paket yang dipilih";
+    return;
+  }
+
+  const hargaAsli = Number(opt.dataset.basePrice || opt.dataset.price);
+  const hargaBaru = Number(opt.dataset.price);
+
+  if (promoAktif && hargaBaru < hargaAsli) {
+    totalNote.textContent = "Promo Jumat: hemat Rp1.000";
+  } else {
+    totalNote.textContent = "Sesuai paket yang dipilih";
+  }
+}
+
+function updateTotal() {
+  if (!paketSelect) return;
+
+  const opt = paketSelect.options[paketSelect.selectedIndex];
+  const harga = opt ? Number(opt.dataset.price) : 0;
+
+  tampilTotal(formatRupiah(harga));
+  updateCatatanTotal();
+  tandaiKartuTerpilih();
+}
+
+if (paketSelect) {
+  paketSelect.addEventListener("change", function () {
+    updateTotal();
+    cekMobileBar();
+  });
 }
 
 // ==========================================
@@ -173,12 +237,18 @@ function updateCatatanTotal() {
 
   chips.forEach(function (chip) {
     chip.addEventListener("click", function () {
-      chips.forEach((c) => c.classList.remove("active"));
+      chips.forEach(function (item) {
+        item.classList.remove("active");
+      });
+
       chip.classList.add("active");
-      const f = chip.getAttribute("data-f");
+
+      const filter = chip.getAttribute("data-f");
+
       document.querySelectorAll(".package-card").forEach(function (kartu) {
         const robux = Number(kartu.getAttribute("data-robux"));
-        kartu.classList.toggle("is-hidden", !cocok(f, robux));
+
+        kartu.classList.toggle("is-hidden", !cocok(filter, robux));
       });
     });
   });
@@ -211,19 +281,23 @@ let akunRobloxTerverifikasi = false;
 function resetVerifikasiRoblox() {
   akunRobloxTerverifikasi = false;
 
-  robloxStatus.textContent = "";
-  robloxStatus.className = "roblox-status";
+  if (robloxStatus) {
+    robloxStatus.textContent = "";
+    robloxStatus.className = "roblox-status";
+  }
 
-  robloxProfile.hidden = true;
-  robloxAvatar.removeAttribute("src");
+  if (robloxProfile) robloxProfile.hidden = true;
+  if (robloxAvatar) robloxAvatar.removeAttribute("src");
 
-  robloxUserIdValue.value = "";
-  robloxDisplayNameValue.value = "";
+  if (robloxUserIdValue) robloxUserIdValue.value = "";
+  if (robloxDisplayNameValue) robloxDisplayNameValue.value = "";
 
-  orderButton.disabled = true;
+  if (orderButton) orderButton.disabled = true;
 }
 
-usernameInput.addEventListener("input", resetVerifikasiRoblox);
+if (usernameInput) {
+  usernameInput.addEventListener("input", resetVerifikasiRoblox);
+}
 
 // ==========================================
 // CARI AKUN ROBLOX
@@ -249,84 +323,88 @@ async function cariAkunRoblox(username) {
   return data;
 }
 
-verifyButton.addEventListener("click", async function () {
-  const username = usernameInput.value.trim();
+if (verifyButton) {
+  verifyButton.addEventListener("click", async function () {
+    const username = usernameInput.value.trim();
 
-  if (!username) {
-    robloxStatus.textContent = "Masukkan username Roblox terlebih dahulu.";
-    robloxStatus.className = "roblox-status error";
-    usernameInput.focus();
-    return;
-  }
-
-  akunRobloxTerverifikasi = false;
-  orderButton.disabled = true;
-  robloxProfile.hidden = true;
-
-  verifyButton.disabled = true;
-  verifyButton.innerHTML = "Sedang mengecek... <span>⏳</span>";
-
-  robloxStatus.textContent = "Menghubungkan ke data Roblox...";
-  robloxStatus.className = "roblox-status loading";
-
-  try {
-    const user = await cariAkunRoblox(username);
-
-    if (!user) {
-      robloxStatus.textContent =
-        "Username tidak ditemukan. Periksa kembali ejaannya.";
+    if (!username) {
+      robloxStatus.textContent = "Masukkan username Roblox terlebih dahulu.";
       robloxStatus.className = "roblox-status error";
+      usernameInput.focus();
       return;
     }
 
-    const namaUsername = user.username || username;
-    const namaDisplay = user.displayName || namaUsername;
-    const userId = user.userId;
+    akunRobloxTerverifikasi = false;
+    orderButton.disabled = true;
+    robloxProfile.hidden = true;
 
-    robloxDisplayName.textContent = namaDisplay;
-    robloxUsername.textContent = `@${namaUsername}`;
-    robloxUserId.textContent = `User ID: ${userId}`;
+    verifyButton.disabled = true;
+    verifyButton.innerHTML = "Sedang mengecek... <span>⏳</span>";
 
-    const avatarUrl = user.avatar || user.image || user.headshot || "";
+    robloxStatus.textContent = "Menghubungkan ke data Roblox...";
+    robloxStatus.className = "roblox-status loading";
 
-    if (avatarUrl) {
-      robloxAvatar.src = avatarUrl;
-      robloxAvatar.alt = `Avatar Roblox ${namaUsername}`;
-      robloxAvatar.style.display = "block";
-    } else {
-      robloxAvatar.removeAttribute("src");
-      robloxAvatar.alt = "Avatar Roblox tidak tersedia";
+    try {
+      const user = await cariAkunRoblox(username);
+
+      if (!user) {
+        robloxStatus.textContent =
+          "Username tidak ditemukan. Periksa kembali ejaannya.";
+        robloxStatus.className = "roblox-status error";
+        return;
+      }
+
+      const namaUsername = user.username || username;
+      const namaDisplay = user.displayName || namaUsername;
+      const userId = user.userId;
+
+      robloxDisplayName.textContent = namaDisplay;
+      robloxUsername.textContent = `@${namaUsername}`;
+      robloxUserId.textContent = `User ID: ${userId}`;
+
+      const avatarUrl = user.avatar || user.image || user.headshot || "";
+
+      if (avatarUrl) {
+        robloxAvatar.src = avatarUrl;
+        robloxAvatar.alt = `Avatar Roblox ${namaUsername}`;
+        robloxAvatar.style.display = "block";
+      } else {
+        robloxAvatar.removeAttribute("src");
+        robloxAvatar.alt = "Avatar Roblox tidak tersedia";
+      }
+
+      robloxUserIdValue.value = userId;
+      robloxDisplayNameValue.value = namaDisplay;
+
+      robloxProfile.hidden = false;
+
+      robloxStatus.textContent =
+        "Akun ditemukan. Pastikan username dan avatar di atas sudah sesuai.";
+      robloxStatus.className = "roblox-status success";
+
+      akunRobloxTerverifikasi = true;
+      orderButton.disabled = false;
+    } catch (error) {
+      console.error("Roblox verification error:", error);
+
+      robloxStatus.textContent =
+        "Gagal terhubung ke Roblox. Silakan coba lagi beberapa saat.";
+      robloxStatus.className = "roblox-status error";
+    } finally {
+      verifyButton.disabled = false;
+      verifyButton.innerHTML = "Cek Akun Roblox <span>→</span>";
     }
-
-    robloxUserIdValue.value = userId;
-    robloxDisplayNameValue.value = namaDisplay;
-
-    robloxProfile.hidden = false;
-
-    robloxStatus.textContent =
-      "Akun ditemukan. Pastikan username dan avatar di atas sudah sesuai.";
-    robloxStatus.className = "roblox-status success";
-
-    akunRobloxTerverifikasi = true;
-    orderButton.disabled = false;
-  } catch (error) {
-    console.error("Roblox verification error:", error);
-    robloxStatus.textContent =
-      "Gagal terhubung ke Roblox. Silakan coba lagi beberapa saat.";
-    robloxStatus.className = "roblox-status error";
-  } finally {
-    verifyButton.disabled = false;
-    verifyButton.innerHTML = "Cek Akun Roblox <span>→</span>";
-  }
-});
+  });
+}
 
 // ==========================================
-// SUBMIT ORDER
+// SUBMIT ORDER KE WHATSAPP
 // ==========================================
 
-document
-  .getElementById("orderForm")
-  .addEventListener("submit", function (event) {
+const orderForm = document.getElementById("orderForm");
+
+if (orderForm) {
+  orderForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
     const username = usernameInput.value.trim();
@@ -342,59 +420,65 @@ document
     }
 
     if (!akunRobloxTerverifikasi) {
-      alert(
-        "Verifikasi username Roblox kamu dulu lewat tombol Cek Akun Roblox.",
-      );
+      alert("Verifikasi username Roblox kamu dulu.");
       usernameInput.focus();
       return;
     }
 
     const selectedOption = paketSelect.options[paketSelect.selectedIndex];
+
     const paket = selectedOption.value;
-    const harga = Number(selectedOption.getAttribute("data-price"));
-    const hargaAsli =
-      Number(selectedOption.getAttribute("data-base-price")) || harga;
-    const tipe = selectedOption.getAttribute("data-type");
+    const harga = Number(selectedOption.dataset.price);
+    const hargaAsli = Number(
+      selectedOption.dataset.basePrice || selectedOption.dataset.price,
+    );
+
+    const tipe = selectedOption.dataset.type;
     const userId = robloxUserIdValue.value;
     const displayName = robloxDisplayNameValue.value;
 
-    // Order ID
     const s = new Date();
     const p = (n) => String(n).padStart(2, "0");
-    const orderID = `KD-${p(s.getDate())}${p(s.getMonth() + 1)}${String(s.getFullYear()).slice(-2)}-${p(s.getHours())}${p(s.getMinutes())}${p(s.getSeconds())}`;
 
-    const barisHarga =
-      promoAktif && hargaAsli !== harga
-        ? `Harga Normal: ${formatRupiah(hargaAsli)}
-Diskon Jumat 10%: -${formatRupiah(hargaAsli - harga)}
+    const orderID =
+      `KD-${p(s.getDate())}${p(s.getMonth() + 1)}` +
+      `${String(s.getFullYear()).slice(-2)}-` +
+      `${p(s.getHours())}${p(s.getMinutes())}${p(s.getSeconds())}`;
+
+    const kenaPromo = promoAktif && harga < hargaAsli;
+
+    const barisHarga = kenaPromo
+      ? `Harga Normal: ${formatRupiah(hargaAsli)}
+Promo Jumat: -${formatRupiah(hargaAsli - harga)}
 Total: ${formatRupiah(harga)}`
-        : `Total: ${formatRupiah(harga)}`;
+      : `Total: ${formatRupiah(harga)}`;
 
-const pesan = `*૮₍˶ᵔ ᵕ ᵔ˶₎ა BOBux ORDER MASUKK!! 🎀*
-    
-*୨୧ KARISYA DREAMY ORDER ୨୧*
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-୨୧ Order ID            : ${orderID}
-୨୧ Jenis               : ${tipe}
-୨୧ Paket               : ${paket}
-୨୧ Username Roblox     : ${username}
-୨୧ Display Name        : ${displayName}
-୨୧ User ID             : ${userId}
+    const pesan = `*PESANAN BARU — KARISYA DREAMY*
+
+Order ID: ${orderID}
+
+*DETAIL PESANAN*
+━━━━━━━━━━━━━━━━
+Jenis: ${tipe}
+Paket: ${paket}
+Username Roblox: ${username}
+Display Name: ${displayName}
+User ID: ${userId}
 ${barisHarga}
-୨୧ Status Akun         : Terverifikasi
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Status Akun: Terverifikasi
+━━━━━━━━━━━━━━━━
 
-hαllooo minsyyy ♡ akuu mauu take bObux inii >< 💗 ditungguu next step-nyaa, minsy! 🛒
-
-₊˚ʚ A Little Shop Born From a Dream ɞ˚₊`;
+Halo Admin Karisya Dreamy, saya ingin memesan Robux sesuai detail di atas.
+Mohon informasi pembayaran selanjutnya. Terima kasih.`;
 
     const linkWhatsApp = `https://wa.me/${nomorWhatsApp}?text=${encodeURIComponent(pesan)}`;
 
     window.open(linkWhatsApp, "_blank");
   });
+}
 
 // ==========================================
-// BANNER IKLAN (2 slide, geser otomatis)
+// BANNER IKLAN — 2 SLIDE
 // ==========================================
 
 (function initAdBanner() {
@@ -404,22 +488,24 @@ hαllooo minsyyy ♡ akuu mauu take bObux inii >< 💗 ditungguu next step-nyaa,
   const prev = document.getElementById("adPrev");
   const next = document.getElementById("adNext");
 
-  if (!track || !frame) return;
+  if (!track || !frame || !prev || !next) return;
 
-  const JEDA = 3000; // ms — waktu antar geseran (ubah di sini)
+  const JEDA = 3000;
   const jumlah = track.children.length;
+
+  if (!jumlah) return;
+
   let index = 0;
   let timer = null;
+  let startX = 0;
 
   function tampil(i) {
     index = (i + jumlah) % jumlah;
     track.style.transform = `translateX(-${index * 100}%)`;
-    dots.forEach((d, n) => d.classList.toggle("on", n === index));
-  }
 
-  function mulai() {
-    berhenti();
-    timer = setInterval(() => tampil(index + 1), JEDA);
+    dots.forEach(function (dot, n) {
+      dot.classList.toggle("on", n === index);
+    });
   }
 
   function berhenti() {
@@ -427,79 +513,96 @@ hαllooo minsyyy ♡ akuu mauu take bObux inii >< 💗 ditungguu next step-nyaa,
     timer = null;
   }
 
-  prev.addEventListener("click", () => {
+  function mulai() {
+    berhenti();
+    timer = setInterval(function () {
+      tampil(index + 1);
+    }, JEDA);
+  }
+
+  prev.addEventListener("click", function () {
     tampil(index - 1);
     mulai();
   });
-  next.addEventListener("click", () => {
+
+  next.addEventListener("click", function () {
     tampil(index + 1);
     mulai();
   });
-  dots.forEach((d, n) =>
-    d.addEventListener("click", () => {
+
+  dots.forEach(function (dot, n) {
+    dot.addEventListener("click", function () {
       tampil(n);
       mulai();
-    }),
-  );
+    });
+  });
 
-  // Berhenti saat di-hover (desktop)
   frame.addEventListener("mouseenter", berhenti);
   frame.addEventListener("mouseleave", mulai);
 
-  // Geser dengan jari (HP)
-  let startX = 0;
   frame.addEventListener(
     "touchstart",
-    (e) => {
-      startX = e.touches[0].clientX;
+    function (event) {
+      startX = event.touches[0].clientX;
       berhenti();
     },
     { passive: true },
   );
-  frame.addEventListener("touchend", (e) => {
-    const dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 40) tampil(index + (dx < 0 ? 1 : -1));
+
+  frame.addEventListener("touchend", function (event) {
+    const dx = event.changedTouches[0].clientX - startX;
+
+    if (Math.abs(dx) > 40) {
+      tampil(index + (dx < 0 ? 1 : -1));
+    }
+
     mulai();
   });
 
-  // Hemat baterai saat tab tidak aktif
-  document.addEventListener("visibilitychange", () =>
-    document.hidden ? berhenti() : mulai(),
-  );
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      berhenti();
+    } else {
+      mulai();
+    }
+  });
 
   tampil(0);
   mulai();
 })();
 
 // ==========================================
-// BAR HP & TOMBOL KE ATAS
+// MOBILE BAR & TOMBOL KE ATAS
 // ==========================================
 
-(function initExtras() {
-  const toTop = document.getElementById("toTop");
-  const orderSection = document.getElementById("order");
+const toTop = document.getElementById("toTop");
+const orderSection = document.getElementById("order");
 
-  function cek() {
-    const y = window.scrollY;
-    if (toTop) toTop.hidden = y < 500;
-
-    if (mobileBar) {
-      const r = orderSection.getBoundingClientRect();
-      const sedangDiForm = r.top < window.innerHeight && r.bottom > 0;
-      const sudahPilih = !!paketSelect.value;
-      mobileBar.hidden = !(sudahPilih && !sedangDiForm);
-    }
+function cekMobileBar() {
+  if (toTop) {
+    toTop.hidden = window.scrollY < 500;
   }
 
-  window.addEventListener("scroll", cek, { passive: true });
-  paketSelect.addEventListener("change", cek);
-  window.addEventListener("resize", cek);
-  cek();
-})();
+  if (mobileBar && orderSection && paketSelect) {
+    const rect = orderSection.getBoundingClientRect();
+
+    const sedangDiForm = rect.top < window.innerHeight && rect.bottom > 0;
+
+    mobileBar.hidden = !(paketSelect.value && !sedangDiForm);
+  }
+}
+
+window.addEventListener("scroll", cekMobileBar, { passive: true });
+window.addEventListener("resize", cekMobileBar);
 
 // ==========================================
 // DEFAULT
 // ==========================================
 
 terapkanPromoJumat();
-orderButton.disabled = true;
+
+if (orderButton) {
+  orderButton.disabled = true;
+}
+
+cekMobileBar();
