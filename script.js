@@ -1,12 +1,9 @@
 // ==========================================
-// KARISYA DREAMY — ORDER, ROBLOX, PROMO & BANNER
+// KARISYA DREAMY — ORDER, ROBLOX & BANNER
 // ==========================================
 
 const nomorWhatsApp = "6285780075159";
 const ROBLOX_PROXY_URL = "https://roblox-api.xavvlabs.workers.dev";
-
-const HARGA_NORMAL_PROMO = 16000;
-const HARGA_JUMAT_PROMO = 15000;
 
 // ==========================================
 // FORMAT RUPIAH
@@ -19,34 +16,6 @@ function formatRupiah(angka) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(angka);
-}
-
-// ==========================================
-// PROMO JUMAT WIB
-// ==========================================
-
-function hariIniJumat() {
-  // Pengujian manual: tambahkan ?promo=1 pada URL.
-  if (new URLSearchParams(window.location.search).get("promo") === "1") {
-    return true;
-  }
-
-  const hari = new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    timeZone: "Asia/Jakarta",
-  }).format(new Date());
-
-  return hari === "Fri";
-}
-
-const promoAktif = hariIniJumat();
-
-function hargaAkhir(hargaAsli) {
-  if (promoAktif && Number(hargaAsli) === HARGA_NORMAL_PROMO) {
-    return HARGA_JUMAT_PROMO;
-  }
-
-  return Number(hargaAsli);
 }
 
 // ==========================================
@@ -65,73 +34,27 @@ function tampilTotal(teks) {
 }
 
 // ==========================================
-// TERAPKAN PROMO PADA KARTU DAN DROPDOWN
+// RAPIKAN FORMAT HARGA KARTU & DROPDOWN
 // ==========================================
 
-function terapkanPromoJumat() {
+function rapikanHarga() {
   if (!paketSelect) return;
 
-  const note = document.getElementById("fridayNote");
-
-  if (note) {
-    note.hidden = !promoAktif;
-  }
-
-  // Harga kartu paket.
   document.querySelectorAll(".package-card").forEach(function (kartu) {
     const hargaEl = kartu.querySelector(":scope > strong");
     if (!hargaEl) return;
 
-    // Simpan harga awal agar tidak terjadi diskon ganda.
-    if (!kartu.dataset.basePrice) {
-      kartu.dataset.basePrice = hargaEl.textContent.replace(/[^\d]/g, "");
-    }
-
-    const hargaAsli = Number(kartu.dataset.basePrice);
-    const hargaBaru = hargaAkhir(hargaAsli);
-
-    // Bersihkan tampilan promo sebelumnya.
-    kartu.classList.remove("is-promo");
-
-    const badgeLama = kartu.querySelector(".promo-badge");
-    if (badgeLama) badgeLama.remove();
-
-    if (promoAktif && hargaBaru !== hargaAsli) {
-      kartu.classList.add("is-promo");
-
-      const badge = document.createElement("div");
-      badge.className = "promo-badge";
-      badge.textContent = "PROMO JUMAT";
-      kartu.appendChild(badge);
-
-      hargaEl.innerHTML =
-        `<s>${formatRupiah(hargaAsli)}</s> ` + `${formatRupiah(hargaBaru)}`;
-    } else {
-      hargaEl.textContent = formatRupiah(hargaAsli);
-    }
+    const harga = Number(hargaEl.textContent.replace(/[^\d]/g, ""));
+    if (harga) hargaEl.textContent = formatRupiah(harga);
   });
 
-  // Harga dropdown formulir.
   Array.from(paketSelect.options).forEach(function (opt) {
-    const hargaAsli = Number(opt.dataset.basePrice || opt.dataset.price);
+    const harga = Number(opt.dataset.price);
+    if (!harga) return;
 
-    if (!hargaAsli) return;
-
-    opt.dataset.basePrice = String(hargaAsli);
-
-    const hargaBaru = hargaAkhir(hargaAsli);
-    opt.dataset.price = String(hargaBaru);
-
-    const namaPaket = opt.value;
-
-    if (promoAktif && hargaBaru !== hargaAsli) {
-      opt.textContent = `${namaPaket} — ${formatRupiah(hargaBaru)} (Promo Jumat)`;
-    } else {
-      opt.textContent = `${namaPaket} — ${formatRupiah(hargaAsli)}`;
-    }
+    opt.textContent = `${opt.value} — ${formatRupiah(harga)}`;
   });
 
-  // Perbarui total jika halaman dibuka dengan paket terpilih.
   updateTotal();
 }
 
@@ -146,7 +69,6 @@ function tandaiKartuTerpilih() {
 
   document.querySelectorAll(".package-card").forEach(function (kartu) {
     const nama = kartu.querySelector("h3").textContent.trim();
-
     kartu.classList.toggle("picked", Boolean(nilai) && nama === nilai);
   });
 }
@@ -182,26 +104,6 @@ function pilihPaket(namaPaket, harga, tipe) {
 // UPDATE TOTAL PEMBAYARAN
 // ==========================================
 
-function updateCatatanTotal() {
-  if (!totalNote || !paketSelect) return;
-
-  const opt = paketSelect.options[paketSelect.selectedIndex];
-
-  if (!opt || !opt.value) {
-    totalNote.textContent = "Sesuai paket yang dipilih";
-    return;
-  }
-
-  const hargaAsli = Number(opt.dataset.basePrice || opt.dataset.price);
-  const hargaBaru = Number(opt.dataset.price);
-
-  if (promoAktif && hargaBaru < hargaAsli) {
-    totalNote.textContent = "Promo Jumat: hemat Rp1.000";
-  } else {
-    totalNote.textContent = "Sesuai paket yang dipilih";
-  }
-}
-
 function updateTotal() {
   if (!paketSelect) return;
 
@@ -209,7 +111,9 @@ function updateTotal() {
   const harga = opt ? Number(opt.dataset.price) : 0;
 
   tampilTotal(formatRupiah(harga));
-  updateCatatanTotal();
+
+  if (totalNote) totalNote.textContent = "Sesuai paket yang dipilih";
+
   tandaiKartuTerpilih();
 }
 
@@ -247,7 +151,6 @@ if (paketSelect) {
 
       document.querySelectorAll(".package-card").forEach(function (kartu) {
         const robux = Number(kartu.getAttribute("data-robux"));
-
         kartu.classList.toggle("is-hidden", !cocok(filter, robux));
       });
     });
@@ -429,10 +332,6 @@ if (orderForm) {
 
     const paket = selectedOption.value;
     const harga = Number(selectedOption.dataset.price);
-    const hargaAsli = Number(
-      selectedOption.dataset.basePrice || selectedOption.dataset.price,
-    );
-
     const tipe = selectedOption.dataset.type;
     const userId = robloxUserIdValue.value;
     const displayName = robloxDisplayNameValue.value;
@@ -445,32 +344,23 @@ if (orderForm) {
       `${String(s.getFullYear()).slice(-2)}-` +
       `${p(s.getHours())}${p(s.getMinutes())}${p(s.getSeconds())}`;
 
-    const kenaPromo = promoAktif && harga < hargaAsli;
-
-    const barisHarga = kenaPromo
-      ? `Harga Normal: ${formatRupiah(hargaAsli)}
-Promo Jumat: -${formatRupiah(hargaAsli - harga)}
-Total: ${formatRupiah(harga)}`
-      : `Total: ${formatRupiah(harga)}`;
-
-    const pesan = `*૮₍˶ᵔ ᵕ ᵔ˶₎ა BOBux ORDER MASUKK!! 🎀*
+    const pesan = `*PESANAN BARU — KARISYA DREAMY*
 
 Order ID: ${orderID}
 
-*୨୧ KARISYA DREAMY ORDER ୨୧*
+*DETAIL PESANAN*
 ━━━━━━━━━━━━━━━━
 Jenis: ${tipe}
 Paket: ${paket}
 Username Roblox: ${username}
 Display Name: ${displayName}
 User ID: ${userId}
-${barisHarga}
+Total: ${formatRupiah(harga)}
 Status Akun: Terverifikasi
 ━━━━━━━━━━━━━━━━
 
-hαllooo minsyyy ♡ akuu mauu take bObux inii >< 💗 ditungguu next step-nyaa, minsy! 🛒
-
-₊˚ʚ A Little Shop Born From a Dream ɞ˚₊.`;
+Halo Admin Karisya Dreamy, saya ingin memesan Robux sesuai detail di atas.
+Mohon informasi pembayaran selanjutnya. Terima kasih.`;
 
     const linkWhatsApp = `https://wa.me/${nomorWhatsApp}?text=${encodeURIComponent(pesan)}`;
 
@@ -586,7 +476,6 @@ function cekMobileBar() {
 
   if (mobileBar && orderSection && paketSelect) {
     const rect = orderSection.getBoundingClientRect();
-
     const sedangDiForm = rect.top < window.innerHeight && rect.bottom > 0;
 
     mobileBar.hidden = !(paketSelect.value && !sedangDiForm);
@@ -600,7 +489,7 @@ window.addEventListener("resize", cekMobileBar);
 // DEFAULT
 // ==========================================
 
-terapkanPromoJumat();
+rapikanHarga();
 
 if (orderButton) {
   orderButton.disabled = true;
