@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&display=swap");
-
 :root {
   --pink: #ff9db9;
   --pink-dark: #f0507c;
@@ -204,8 +202,6 @@ section {
 
 /* =====================================================
    BANNER IKLAN — 2 slide, geser otomatis
-   Mengikuti gambar referensi: gradasi pink, garis diagonal
-   transparan, judul putih besar, tombol putih, koin & karakter
    ===================================================== */
 .ad-banner {
   position: relative;
@@ -236,7 +232,6 @@ section {
   aspect-ratio: 3.39 / 1;
   overflow: hidden;
   color: #fff;
-  /* gambar latar (garis diagonal + kotak) + gradasi cadangan jika file belum ada */
   background:
     url("./avatars/BENNER.jpg") center / 100% 100% no-repeat,
     url("./images/banner-background.jpg") center / 100% 100% no-repeat,
@@ -290,7 +285,6 @@ section {
   box-shadow: 0 6px 14px rgba(130, 35, 65, 0.2);
 }
 
-/* sisi kanan: kotak terbuka + karakter + koin */
 .ad-art {
   position: absolute;
   z-index: 2;
@@ -304,7 +298,6 @@ section {
   filter: drop-shadow(0 4px 8px rgba(120, 50, 20, 0.35));
   animation: coinFloat 4s ease-in-out infinite;
 }
-/* posisi koin & karakter mengikuti desain Figma (persen dari banner) */
 .ad-coin.c1 {
   left: 55.5%;
   top: 5%;
@@ -461,6 +454,7 @@ section {
   }
 }
 
+/* hero */
 .hero {
   min-height: 660px;
   display: flex;
@@ -496,7 +490,7 @@ section {
 }
 .hero h1 {
   font-family: "Fredoka", sans-serif;
-  font-size: clamp(px, 5vw, 64px);
+  font-size: clamp(36px, 5vw, 64px);
   line-height: 1.08;
   margin-bottom: 20px;
 }
@@ -610,11 +604,6 @@ section {
   box-shadow:
     0 15px 35px rgba(150, 60, 80, 0.12),
     inset 0 0 0 10px #ffd3e0;
-}
-.hero-character {
-  width: 100%;
-  height: 200%;
-  object-fit: contain;
 }
 .card-small {
   font-size: 11px;
@@ -818,19 +807,6 @@ section {
   border-color: var(--pink-dark);
   color: #fff;
 }
-.friday-note {
-  margin-bottom: 22px;
-  padding: 12px 18px;
-  border-radius: 16px;
-  background: var(--pink-light);
-  border: 2px dashed var(--pink);
-  color: var(--pink-deep);
-  font-size: 14px;
-  text-align: center;
-}
-.friday-note[hidden] {
-  display: none;
-}
 .package-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -925,24 +901,6 @@ section {
   font-size: 20px;
   margin-bottom: 15px;
   color: var(--pink-dark);
-}
-.package-card > strong s {
-  display: block;
-  color: var(--text-light);
-  font-size: 13px;
-  font-weight: 500;
-}
-.package-card.is-promo .promo-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: var(--pink-dark);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 50px;
-  z-index: 2;
 }
 .package-card button {
   width: 100%;
@@ -1076,9 +1034,6 @@ section {
 }
 .cute-note strong {
   color: var(--text);
-}
-.cute-note img {
-  size: 10px;
 }
 .order-card {
   padding: 32px;
@@ -1725,7 +1680,7 @@ footer > span {
     padding: 40px 0 30px;
   }
   .hero-content > p {
-    font-size: 12px;
+    font-size: 14px;
   }
   .hero-buttons {
     flex-direction: column;
@@ -1743,7 +1698,7 @@ footer > span {
   }
   .robux-orb {
     width: 150px;
-    height: 200px;
+    height: 150px;
   }
   .dream-card h2 {
     font-size: 24px;
@@ -1930,24 +1885,23 @@ footer > span {
 }
 
 /* =====================================================
-   UI POLISH — tombol & elemen yang lebih lucu, rapi, ramah pengguna
-   (ditaruh paling bawah supaya menimpa aturan sebelumnya)
+   UI POLISH — tombol & elemen yang lebih lucu dan ramah pengguna
+   (ditaruh di bawah supaya menimpa aturan sebelumnya)
    ===================================================== */
 :root {
   --grad-pink: linear-gradient(180deg, #ff6f95 0%, #f0507c 100%);
   --grad-soft: linear-gradient(180deg, #fff6f9 0%, #ffe4ec 100%);
   --ring: 0 0 0 4px rgba(240, 80, 124, 0.22);
-  --ease: cubic-bezier(0.34, 1.56, 0.64, 1); /* efek "membal" lembut */
+  --ease: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* fokus keyboard yang jelas & manis */
 :focus-visible {
   outline: 3px solid #ff9db9;
   outline-offset: 3px;
   border-radius: 14px;
 }
 
-/* ---------- Tombol utama (pill 3D + kilau) ---------- */
+/* tombol utama (pill 3D + kilau) */
 .btn,
 .nav-container nav .nav-order,
 .order-button,
@@ -2095,7 +2049,7 @@ footer > span {
   transform: scale(1.12);
 }
 
-/* ---------- Filter chip ---------- */
+/* filter chip */
 .chip {
   min-height: 42px;
   border-color: #ffc0d1;
@@ -2124,7 +2078,7 @@ footer > span {
   content: "✓ ";
 }
 
-/* ---------- Kartu paket ---------- */
+/* kartu paket */
 .package-card {
   border-color: #ffd0de;
   box-shadow:
@@ -2183,13 +2137,12 @@ footer > span {
 .package-card.picked button::after {
   content: none;
 }
-.popular-ribbon,
-.promo-badge {
+.popular-ribbon {
   background: var(--grad-pink);
   box-shadow: 0 2px 6px rgba(240, 80, 124, 0.35);
 }
 
-/* ---------- Form ---------- */
+/* form */
 .form-group select,
 .form-group input[type="text"] {
   min-height: 54px;
@@ -2259,7 +2212,7 @@ footer > span {
   content: none;
 }
 
-/* ---------- Kartu & panel lain ---------- */
+/* kartu & panel lain */
 .order-card {
   box-shadow:
     0 8px 0 #ffc0d1,
@@ -2316,12 +2269,10 @@ footer > span {
 .faq-list details[open] summary::after {
   background: var(--grad-pink);
   color: #fff;
-}
-.faq-list details[open] summary::after {
   transform: rotate(180deg);
 }
 
-/* ---------- Tombol mengambang (HP) ---------- */
+/* tombol mengambang (HP) */
 .mobile-bar {
   border-color: #ffc0d1;
   backdrop-filter: blur(10px);
@@ -2371,6 +2322,7 @@ footer > span {
   }
 }
 
+/* maskot kucing */
 .cat {
   position: absolute;
   left: -800px;
@@ -2379,7 +2331,6 @@ footer > span {
   z-index: 0;
   opacity: 0.7;
 }
-
 .cat img {
   width: 400px;
   height: auto;
@@ -2393,11 +2344,11 @@ footer > span {
   z-index: 0;
   opacity: 0.8;
 }
-
 .cat2 img {
   width: 330px;
   height: auto;
 }
+
 .cat3 {
   position: absolute;
   left: 350px;
@@ -2406,11 +2357,11 @@ footer > span {
   z-index: 0;
   opacity: 0.8;
 }
-
 .cat3 img {
   width: 330px;
   height: auto;
 }
+
 .cat4 {
   position: absolute;
   left: 200px;
@@ -2419,11 +2370,11 @@ footer > span {
   z-index: 0;
   opacity: 0.8;
 }
-
 .cat4 img {
   width: 500px;
   height: auto;
 }
+
 .cat6 {
   position: absolute;
   left: 1350px;
@@ -2432,11 +2383,11 @@ footer > span {
   z-index: 0;
   opacity: 0.8;
 }
-
 .cat6 img {
   width: 430px;
   height: auto;
 }
+
 .cat7 {
   position: absolute;
   left: 1350px;
@@ -2445,7 +2396,6 @@ footer > span {
   z-index: 0;
   opacity: 0.8;
 }
-
 .cat7 img {
   width: 450px;
   height: auto;
