@@ -344,12 +344,13 @@ if (orderForm) {
       `${String(s.getFullYear()).slice(-2)}-` +
       `${p(s.getHours())}${p(s.getMinutes())}${p(s.getSeconds())}`;
 
-    const pesan = `*PESANAN BARU — KARISYA DREAMY*
+    const pesan = `*૮₍˶ᵔ ᵕ ᵔ˶₎ა BOBux ORDER MASUKK!! �
+*
 
 Order ID: ${orderID}
 
-*DETAIL PESANAN*
-━━━━━━━━━━━━━━━━
+*୨୧ KARISYA DREAMY ORDER ୨୧*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Jenis: ${tipe}
 Paket: ${paket}
 Username Roblox: ${username}
@@ -357,10 +358,11 @@ Display Name: ${displayName}
 User ID: ${userId}
 Total: ${formatRupiah(harga)}
 Status Akun: Terverifikasi
-━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Halo Admin Karisya Dreamy, saya ingin memesan Robux sesuai detail di atas.
-Mohon informasi pembayaran selanjutnya. Terima kasih.`;
+hαllooo minsyyy ♡ akuu mauu take bObux inii >< � ditungguu next step-nyaa, minsy! �
+
+₊˚ʚ A Little Shop Born From a Dream ɞ˚₊`;
 
     const linkWhatsApp = `https://wa.me/${nomorWhatsApp}?text=${encodeURIComponent(pesan)}`;
 
