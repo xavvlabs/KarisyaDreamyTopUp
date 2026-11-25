@@ -349,10 +349,8 @@ if (orderForm) {
 
 Order ID: ${orderID}
 
-*୨୧ KARISYA DREAMY ORDER ୨୧*
+*꒰ form order robux visend karisya dreamy ꒱ ☁️🪽*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Jenis: ${tipe}
-Paket: ${paket}
 Username Roblox: ${username}
 Display Name: ${displayName}
 User ID: ${userId}
@@ -360,10 +358,8 @@ Total: ${formatRupiah(harga)}
 Status Akun: Terverifikasi
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-hαllooo minsyyy ♡ akuu mauu take bObux inii >< � ditungguu next step-nyaa, minsy! �
-
+𓂃 ࣪˖ ִֶָ  hαllooo, kayiess ! aku mau take robux ini>__ sudah isi form dengan lengkap, tinggal tunggu next step ! ありがとう 🍰🥢
 ₊˚ʚ A Little Shop Born From a Dream ɞ˚₊`;
-
     const linkWhatsApp = `https://wa.me/${nomorWhatsApp}?text=${encodeURIComponent(pesan)}`;
 
     window.open(linkWhatsApp, "_blank");
