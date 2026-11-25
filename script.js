@@ -344,12 +344,10 @@ if (orderForm) {
       `${String(s.getFullYear()).slice(-2)}-` +
       `${p(s.getHours())}${p(s.getMinutes())}${p(s.getSeconds())}`;
 
-    const pesan = `*૮₍˶ᵔ ᵕ ᵔ˶₎ა BOBux ORDER MASUKK!! �
-*
+    const pesan = `ʚ ˚ ⊹ ꒰ form order robux visend ꒱ .. ⊹
 
 Order ID: ${orderID}
 
-*꒰ form order robux visend karisya dreamy ꒱ ☁️🪽*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Username Roblox: ${username}
 Display Name: ${displayName}
@@ -358,8 +356,7 @@ Total: ${formatRupiah(harga)}
 Status Akun: Terverifikasi
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-𓂃 ࣪˖ ִֶָ  hαllooo, kayiess ! aku mau take robux ini>__ sudah isi form dengan lengkap, tinggal tunggu next step ! ありがとう 🍰🥢
-₊˚ʚ A Little Shop Born From a Dream ɞ˚₊`;
+𓂃 ࣪˖ ִֶָ  hαllooo, kayiess ! aku mau take robux ini 👛🪽sudah isi form dengan lengkap, tinggal tunggu next step ! ありがとう 🫧 🛒`;
     const linkWhatsApp = `https://wa.me/${nomorWhatsApp}?text=${encodeURIComponent(pesan)}`;
 
     window.open(linkWhatsApp, "_blank");
