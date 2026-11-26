@@ -352,7 +352,7 @@ Order ID: ${orderID}
 Username Roblox: ${username}
 Display Name: ${displayName}
 User ID: ${userId}
-Paket: ${paket} Robux
+Paket: ${paket} 
 Total: ${formatRupiah(harga)}
 Status Akun: Terverifikasi
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
